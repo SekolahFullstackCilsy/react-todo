@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import ActionTodo from './ActionTodo';
+import FilterTodo from './FilterTodo';
+import Todo from './Todo';
 
 export default function Todos() {
   const [todos, setTodos] = useState([
@@ -7,6 +9,10 @@ export default function Todos() {
     {id: 2, text: 'Learn Js', completed: true},
     {id: 3, text: 'Learn HTML', completed: true},
   ]);
+  const [filter, setFilter] = useState({
+    search: '',
+    completed: false
+  });
 
   const onAddTodo = (text) => {
     todos.push({
@@ -19,14 +25,40 @@ export default function Todos() {
     ])
   }
 
+  const onFilterTodo = (search, completed) => {
+    setFilter({search, completed})
+  }
+
+  const onCompletedTodo = (id) => {
+    const todo = todos.find((val) => val.id === id)
+    todo.completed = true
+    setTodos([...todos])
+  }
+
+  const filteredTodos = todos.filter((todo) => {
+    const searchText =
+      todo.text.toLocaleLowerCase()
+        .includes(filter.search.toLocaleLowerCase())
+    const hideCompleted = !filter.completed || !todo.completed
+
+    return searchText && hideCompleted
+  })
+
   return (
     <div>
-      {todos.map((val, key) => {
+      <FilterTodo onFilterTodo={onFilterTodo} />
+      {filteredTodos.map((val, key) => {
         return (
-          <h4 key={key}>{key + 1}. {val.text}</h4>
+          <Todo
+            key={key}
+            no={key + 1}
+            data={val}
+            onCompletedTodo={onCompletedTodo}
+          />
         )
       })}
-      <ActionTodo onAddTodo={onAddTodo}/>
+      <br />
+      <ActionTodo onAddTodo={onAddTodo} />
     </div>
   )
 }
